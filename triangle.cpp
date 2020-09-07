@@ -1,3 +1,4 @@
+// http://rawcdn.githack.com/AriaMoKr/SimpleGL/master/triangle.html
 #include <GL/glut.h>
 
 void display()
