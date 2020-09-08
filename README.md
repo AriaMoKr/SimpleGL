@@ -8,3 +8,6 @@ A few examples of getting up and running in classic OpenGL.
 [https://ariamokr.github.io/SimpleGL/hello.html](https://ariamokr.github.io/SimpleGL/hello.html)
 
 [https://ariamokr.github.io/SimpleGL/triangle.html](https://ariamokr.github.io/SimpleGL/triangle.html)
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
