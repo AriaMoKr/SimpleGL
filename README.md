@@ -3,8 +3,8 @@
 A few examples of getting up and running in classic OpenGL.
 (currently targetting Empscripten)
 
-http://rawcdn.githack.com/AriaMoKr/SimpleGL/master/nothing.html
+https://ariamokr.github.io/SimpleGL/nothing.html
 
-http://rawcdn.githack.com/AriaMoKr/SimpleGL/master/hello.html
+https://ariamokr.github.io/SimpleGL/hello.html
 
-http://rawcdn.githack.com/AriaMoKr/SimpleGL/master/triangle.html
+https://ariamokr.github.io/SimpleGL/triangle.html
