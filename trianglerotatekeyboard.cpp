@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <GL/glut.h>
+#include <map>
+using namespace std;
 
-bool rotate = true;
+bool rotating = true;
+map<int, bool> keysdown;
 
 void display()
 {
@@ -14,29 +17,29 @@ void display()
 
 void idle()
 {
-	if(rotate)
+	if(rotating)
 		glRotatef(0.1, 0, 0, 1);
 	glutPostRedisplay();
 }
 
 void keyboardd(unsigned char key, int x, int y)
 {
-	rotate = !rotate;
+	rotating = !rotating;
 }
 
 void keyboardu(unsigned char key, int x, int y)
 {
-	//rotate = !rotate;
+	//rotating = !rotating;
 }
 
 void keyboardsd(int key, int x, int y)
 {
-	rotate = !rotate;
+	rotating = !rotating;
 }
 
 void keyboardsu(int key, int x, int y)
 {
-	//rotate = !rotate;
+	//rotating = !rotating;
 }
 
 int main()
