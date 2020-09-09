@@ -22,5 +22,15 @@ emcc triangle.cpp -s LEGACY_GL_EMULATION -o triangle.html
 emcc trianglerotate.cpp -s LEGACY_GL_EMULATION -o trianglerotate.html
 ```
 
+[https://ariamokr.github.io/SimpleGL/trianglerotatemouse.html](https://ariamokr.github.io/SimpleGL/trianglerotatemouse.html)
+```bash
+emcc trianglerotatemouse.cpp -s LEGACY_GL_EMULATION -o trianglerotatemouse.html
+```
+
+[https://ariamokr.github.io/SimpleGL/trianglerotatekeyboard.html](https://ariamokr.github.io/SimpleGL/trianglerotatekeyboard.html)
+```bash
+emcc trianglerotatekeyboard.cpp -s LEGACY_GL_EMULATION -o trianglerotatekeyboard.html
+```
+
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
