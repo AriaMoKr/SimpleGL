@@ -4,7 +4,8 @@
 using namespace std;
 
 bool rotating = true;
-set<int> keysdown;
+set<unsigned char> keysdown;
+set<int> keyssdown;
 
 void display()
 {
@@ -24,22 +25,32 @@ void idle()
 
 void keyboardd(unsigned char key, int x, int y)
 {
+	if(keysdown.find(key) != keysdown.end())
+		return;
 	rotating = !rotating;
+	keysdown.insert(key);
 }
 
 void keyboardu(unsigned char key, int x, int y)
 {
-	//rotating = !rotating;
+	if(keysdown.find(key) == keysdown.end())
+		return;
+	keysdown.erase(key);
 }
 
 void keyboardsd(int key, int x, int y)
 {
+	if(keyssdown.find(key) != keyssdown.end())
+		return;
 	rotating = !rotating;
+	keyssdown.insert(key);
 }
 
 void keyboardsu(int key, int x, int y)
 {
-	//rotating = !rotating;
+	if(keyssdown.find(key) == keyssdown.end())
+		return;
+	keyssdown.erase(key);
 }
 
 int main()
