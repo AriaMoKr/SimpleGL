@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <GL/glut.h>
-#include <map>
+#include <set>
 using namespace std;
 
 bool rotating = true;
-map<int, bool> keysdown;
+set<int> keysdown;
 
 void display()
 {
