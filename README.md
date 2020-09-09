@@ -1,7 +1,7 @@
 # SimpleGL
 
 A few examples of getting up and running in classic OpenGL.
-(currently targetting Emscripten)
+(currently targetting Emscripten - see [https://emscripten.org/docs/getting_started/index.html](Emscripten - Getting Started)
 
 [https://ariamokr.github.io/SimpleGL/nothing.html](https://ariamokr.github.io/SimpleGL/nothing.html)
 ```bash
