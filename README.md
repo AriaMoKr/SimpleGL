@@ -18,5 +18,10 @@ emcc hello.cpp -o hello.html
 emcc triangle.cpp -s LEGACY_GL_EMULATION -o triangle.html
 ```
 
+[https://ariamokr.github.io/SimpleGL/trianglerotate.html](https://ariamokr.github.io/SimpleGL/trianglerotate.html)
+```bash
+emcc trianglerotate.cpp -s LEGACY_GL_EMULATION -o trianglerotate.html
+```
+
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
