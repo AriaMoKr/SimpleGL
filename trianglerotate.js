@@ -624,8 +624,8 @@ var wasmMemory;
 // so this creates a (non-native-wasm) table for us.
 
 var wasmTable = new WebAssembly.Table({
-  'initial': 2,
-  'maximum': 2,
+  'initial': 3,
+  'maximum': 3,
   'element': 'anyfunc'
 });
 
@@ -1644,7 +1644,7 @@ function createExportWrapper(name, fixedasm) {
   };
 }
 
-var wasmBinaryFile = 'triangle.wasm';
+var wasmBinaryFile = 'trianglerotate.wasm';
 if (!isDataURI(wasmBinaryFile)) {
   wasmBinaryFile = locateFile(wasmBinaryFile);
 }
@@ -7639,6 +7639,12 @@ var ASM_CONSTS = {
       GLImmediate.modifiedClientAttributes = true;
     }
 
+  function _glRotatef(angle, x, y, z) {
+      GLImmediate.matricesModified = true;
+      GLImmediate.matrixVersion[GLImmediate.currentMatrix] = (GLImmediate.matrixVersion[GLImmediate.currentMatrix] + 1)|0;
+      GLImmediate.matrixLib.mat4.rotate(GLImmediate.matrix[GLImmediate.currentMatrix], angle*Math.PI/180, [x, y, z]);
+    }
+
   function _glVertex2f(x, y) {
       assert(GLImmediate.mode >= 0); // must be in begin/end
       GLImmediate.vertexData[GLImmediate.vertexCounter++] = x;
@@ -7926,6 +7932,19 @@ var ASM_CONSTS = {
       GLUT.displayFunc = func;
     }
 
+  function _glutIdleFunc(func) {
+      function callback() {
+        if (GLUT.idleFunc) {
+          wasmTable.get(GLUT.idleFunc)();
+          Browser.safeSetTimeout(callback, 4); // HTML spec specifies a 4ms minimum delay on the main thread; workers might get more, but we standardize here
+        }
+      }
+      if (!GLUT.idleFunc) {
+        Browser.safeSetTimeout(callback, 0);
+      }
+      GLUT.idleFunc = func;
+    }
+
   function _glutInitWindowSize(width, height) {
       Browser.setCanvasSize( GLUT.initWindowWidth = width,
                              GLUT.initWindowHeight = height );
@@ -7945,6 +7964,7 @@ var ASM_CONSTS = {
       _glutPostRedisplay();
       throw 'unwind';
     }
+
 
 GLImmediate.setupFuncs(); Browser.moduleContextCreatedCallbacks.push(function() { GLImmediate.init() });;
 Module["requestFullscreen"] = function Module_requestFullscreen(lockPointer, resizeCanvas) { Browser.requestFullscreen(lockPointer, resizeCanvas) };
@@ -7986,7 +8006,7 @@ function intArrayToString(array) {
 }
 
 
-var asmLibraryArg = { "emscripten_get_sbrk_ptr": _emscripten_get_sbrk_ptr, "emscripten_resize_heap": _emscripten_resize_heap, "glBegin": _glBegin, "glEnd": _glEnd, "glVertex2f": _glVertex2f, "glutCreateWindow": _glutCreateWindow, "glutDisplayFunc": _glutDisplayFunc, "glutInitWindowSize": _glutInitWindowSize, "glutMainLoop": _glutMainLoop, "memory": wasmMemory, "table": wasmTable };
+var asmLibraryArg = { "emscripten_get_sbrk_ptr": _emscripten_get_sbrk_ptr, "emscripten_resize_heap": _emscripten_resize_heap, "glBegin": _glBegin, "glEnd": _glEnd, "glRotatef": _glRotatef, "glVertex2f": _glVertex2f, "glutCreateWindow": _glutCreateWindow, "glutDisplayFunc": _glutDisplayFunc, "glutIdleFunc": _glutIdleFunc, "glutInitWindowSize": _glutInitWindowSize, "glutMainLoop": _glutMainLoop, "glutPostRedisplay": _glutPostRedisplay, "memory": wasmMemory, "table": wasmTable };
 var asm = createWasm();
 /** @type {function(...*):?} */
 var ___wasm_call_ctors = Module["___wasm_call_ctors"] = createExportWrapper("__wasm_call_ctors");

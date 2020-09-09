@@ -9,10 +9,17 @@ void display()
 	glEnd();
 }
 
+void idle()
+{
+	glRotatef(0.1, 0, 0, 1);
+	glutPostRedisplay();
+}
+
 int main()
 {
 	glutInitWindowSize(400, 400); 
 	glutCreateWindow("");
 	glutDisplayFunc(display); 
+	glutIdleFunc(idle);
 	glutMainLoop();
 }
