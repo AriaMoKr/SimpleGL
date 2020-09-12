@@ -16,6 +16,13 @@ void display()
 	glVertex2f(0.9, -0.9);
 	glEnd();
 
+	glColor3f(0.5, 0.5, 0.5);
+	glBegin(GL_TRIANGLES);
+	glVertex2f(-0.5, -0.5);
+	glVertex2f(-1, -0.8);
+	glVertex2f(-0.5, -1);
+	glEnd();
+
 	glColor3f(0, 0, 1);
 	glBegin(GL_TRIANGLES);
 	glVertex2f(-0.7, -0.6);

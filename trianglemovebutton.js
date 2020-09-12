@@ -88,22 +88,21 @@ if (ENVIRONMENT_IS_NODE) {
 
 
 
-  read_ = function shell_read(filename, binary) {
-    if (!nodeFS) nodeFS = require('fs');
-    if (!nodePath) nodePath = require('path');
-    filename = nodePath['normalize'](filename);
-    return nodeFS['readFileSync'](filename, binary ? null : 'utf8');
-  };
+read_ = function shell_read(filename, binary) {
+  if (!nodeFS) nodeFS = require('fs');
+  if (!nodePath) nodePath = require('path');
+  filename = nodePath['normalize'](filename);
+  return nodeFS['readFileSync'](filename, binary ? null : 'utf8');
+};
 
-  readBinary = function readBinary(filename) {
-    var ret = read_(filename, true);
-    if (!ret.buffer) {
-      ret = new Uint8Array(ret);
-    }
-    assert(ret.buffer);
-    return ret;
-  };
-
+readBinary = function readBinary(filename) {
+  var ret = read_(filename, true);
+  if (!ret.buffer) {
+    ret = new Uint8Array(ret);
+  }
+  assert(ret.buffer);
+  return ret;
+};
 
 
 
@@ -298,15 +297,6 @@ var NODEFS = 'NODEFS is no longer included by default; build with -lnodefs.js';
 // {{PREAMBLE_ADDITIONS}}
 
 var STACK_ALIGN = 16;
-
-function dynamicAlloc(size) {
-  assert(DYNAMICTOP_PTR);
-  var ret = HEAP32[DYNAMICTOP_PTR>>2];
-  var end = (ret + size + 15) & -16;
-  assert(end <= HEAP8.length, 'failure to dynamicAlloc - memory growth etc. is not supported there, call malloc/sbrk directly');
-  HEAP32[DYNAMICTOP_PTR>>2] = end;
-  return ret;
-}
 
 function alignMemory(size, factor) {
   if (!factor) factor = STACK_ALIGN; // stack alignment (16-byte) by default
@@ -723,8 +713,7 @@ function cwrap(ident, returnType, argTypes, opts) {
 
 var ALLOC_NORMAL = 0; // Tries to use _malloc()
 var ALLOC_STACK = 1; // Lives for the duration of the current function call
-var ALLOC_DYNAMIC = 2; // Cannot be freed except through sbrk
-var ALLOC_NONE = 3; // Do not allocate
+var ALLOC_NONE = 2; // Do not allocate
 
 // allocate(): This is for internal use. You can use it yourself as well, but the interface
 //             is a little tricky (see docs right below). The reason is that it is optimized
@@ -758,7 +747,7 @@ function allocate(slab, types, allocator, ptr) {
   } else {
     ret = [_malloc,
     stackAlloc,
-    dynamicAlloc][allocator](Math.max(size, singleType ? 1 : types.length));
+    ][allocator](Math.max(size, singleType ? 1 : types.length));
   }
 
   if (zeroinit) {
@@ -809,12 +798,6 @@ function allocate(slab, types, allocator, ptr) {
   }
 
   return ret;
-}
-
-// Allocate memory during any stage of startup - static memory early on, dynamic memory later, malloc when ready
-function getMemory(size) {
-  if (!runtimeInitialized) return dynamicAlloc(size);
-  return _malloc(size);
 }
 
 
@@ -1245,14 +1228,14 @@ function updateGlobalBufferAndViews(buf) {
 }
 
 var STATIC_BASE = 1024,
-    STACK_BASE = 5244960,
+    STACK_BASE = 5244944,
     STACKTOP = STACK_BASE,
-    STACK_MAX = 2080,
-    DYNAMIC_BASE = 5244960,
-    DYNAMICTOP_PTR = 2064;
+    STACK_MAX = 2064,
+    DYNAMIC_BASE = 5244944;
 
 assert(STACK_BASE % 16 === 0, 'stack must start aligned');
 assert(DYNAMIC_BASE % 16 === 0, 'heap must start aligned');
+
 
 
 var TOTAL_STACK = 5242880;
@@ -1265,12 +1248,6 @@ assert(INITIAL_INITIAL_MEMORY >= TOTAL_STACK, 'INITIAL_MEMORY should be larger t
 // check for full engine support (use string 'subarray' to avoid closure compiler confusion)
 assert(typeof Int32Array !== 'undefined' && typeof Float64Array !== 'undefined' && Int32Array.prototype.subarray !== undefined && Int32Array.prototype.set !== undefined,
        'JS engine does not provide full typed array support');
-
-
-
-
-
-
 
 
 // In non-standalone/normal mode, we create the memory here.
@@ -1302,7 +1279,6 @@ INITIAL_INITIAL_MEMORY = buffer.byteLength;
 assert(INITIAL_INITIAL_MEMORY % WASM_PAGE_SIZE === 0);
 updateGlobalBufferAndViews(buffer);
 
-HEAP32[DYNAMICTOP_PTR>>2] = DYNAMIC_BASE;
 
 
 
@@ -1573,7 +1549,6 @@ function abort(what) {
   throw e;
 }
 
-
 var memoryInitializer = null;
 
 
@@ -1643,6 +1618,7 @@ function createExportWrapper(name, fixedasm) {
     return asm[name].apply(null, arguments);
   };
 }
+
 
 var wasmBinaryFile = 'trianglemovebutton.wasm';
 if (!isDataURI(wasmBinaryFile)) {
@@ -1787,7 +1763,7 @@ var ASM_CONSTS = {
 
 
 
-// STATICTOP = STATIC_BASE + 1056;
+// STATICTOP = STATIC_BASE + 1040;
 /* global initializers */  __ATINIT__.push({ func: function() { ___wasm_call_ctors() } });
 
 
@@ -1981,10 +1957,6 @@ var ASM_CONSTS = {
 
   function _abort() {
       abort();
-    }
-
-  function _emscripten_get_sbrk_ptr() {
-      return 2064;
     }
 
   function _emscripten_memcpy_big(dest, src, num) {
@@ -8204,7 +8176,7 @@ function intArrayToString(array) {
 }
 
 
-var asmLibraryArg = { "__cxa_allocate_exception": ___cxa_allocate_exception, "__cxa_atexit": ___cxa_atexit, "__cxa_throw": ___cxa_throw, "abort": _abort, "emscripten_get_sbrk_ptr": _emscripten_get_sbrk_ptr, "emscripten_memcpy_big": _emscripten_memcpy_big, "emscripten_resize_heap": _emscripten_resize_heap, "glBegin": _glBegin, "glColor3f": _glColor3f, "glEnable": _glEnable, "glEnd": _glEnd, "glVertex2f": _glVertex2f, "glutCreateWindow": _glutCreateWindow, "glutDisplayFunc": _glutDisplayFunc, "glutIdleFunc": _glutIdleFunc, "glutInit": _glutInit, "glutInitWindowSize": _glutInitWindowSize, "glutKeyboardFunc": _glutKeyboardFunc, "glutKeyboardUpFunc": _glutKeyboardUpFunc, "glutMainLoop": _glutMainLoop, "glutPostRedisplay": _glutPostRedisplay, "glutSpecialFunc": _glutSpecialFunc, "glutSpecialUpFunc": _glutSpecialUpFunc, "memory": wasmMemory, "table": wasmTable };
+var asmLibraryArg = { "__cxa_allocate_exception": ___cxa_allocate_exception, "__cxa_atexit": ___cxa_atexit, "__cxa_throw": ___cxa_throw, "__indirect_function_table": wasmTable, "abort": _abort, "emscripten_memcpy_big": _emscripten_memcpy_big, "emscripten_resize_heap": _emscripten_resize_heap, "glBegin": _glBegin, "glColor3f": _glColor3f, "glEnable": _glEnable, "glEnd": _glEnd, "glVertex2f": _glVertex2f, "glutCreateWindow": _glutCreateWindow, "glutDisplayFunc": _glutDisplayFunc, "glutIdleFunc": _glutIdleFunc, "glutInit": _glutInit, "glutInitWindowSize": _glutInitWindowSize, "glutKeyboardFunc": _glutKeyboardFunc, "glutKeyboardUpFunc": _glutKeyboardUpFunc, "glutMainLoop": _glutMainLoop, "glutPostRedisplay": _glutPostRedisplay, "glutSpecialFunc": _glutSpecialFunc, "glutSpecialUpFunc": _glutSpecialUpFunc, "memory": wasmMemory };
 var asm = createWasm();
 /** @type {function(...*):?} */
 var ___wasm_call_ctors = Module["___wasm_call_ctors"] = createExportWrapper("__wasm_call_ctors");
@@ -8278,8 +8250,6 @@ if (!Object.getOwnPropertyDescriptor(Module, "FS_createLink")) Module["FS_create
 if (!Object.getOwnPropertyDescriptor(Module, "FS_createDevice")) Module["FS_createDevice"] = function() { abort("'FS_createDevice' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ). Alternatively, forcing filesystem support (-s FORCE_FILESYSTEM=1) can export this for you") };
 if (!Object.getOwnPropertyDescriptor(Module, "FS_unlink")) Module["FS_unlink"] = function() { abort("'FS_unlink' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ). Alternatively, forcing filesystem support (-s FORCE_FILESYSTEM=1) can export this for you") };
 if (!Object.getOwnPropertyDescriptor(Module, "dynamicAlloc")) Module["dynamicAlloc"] = function() { abort("'dynamicAlloc' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
-if (!Object.getOwnPropertyDescriptor(Module, "loadDynamicLibrary")) Module["loadDynamicLibrary"] = function() { abort("'loadDynamicLibrary' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
-if (!Object.getOwnPropertyDescriptor(Module, "loadWebAssemblyModule")) Module["loadWebAssemblyModule"] = function() { abort("'loadWebAssemblyModule' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 if (!Object.getOwnPropertyDescriptor(Module, "getLEB")) Module["getLEB"] = function() { abort("'getLEB' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 if (!Object.getOwnPropertyDescriptor(Module, "getFunctionTables")) Module["getFunctionTables"] = function() { abort("'getFunctionTables' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 if (!Object.getOwnPropertyDescriptor(Module, "alignFunctionTables")) Module["alignFunctionTables"] = function() { abort("'alignFunctionTables' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
@@ -8416,7 +8386,6 @@ if (!Object.getOwnPropertyDescriptor(Module, "allocateUTF8OnStack")) Module["all
 Module["writeStackCookie"] = writeStackCookie;
 Module["checkStackCookie"] = checkStackCookie;if (!Object.getOwnPropertyDescriptor(Module, "ALLOC_NORMAL")) Object.defineProperty(Module, "ALLOC_NORMAL", { configurable: true, get: function() { abort("'ALLOC_NORMAL' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") } });
 if (!Object.getOwnPropertyDescriptor(Module, "ALLOC_STACK")) Object.defineProperty(Module, "ALLOC_STACK", { configurable: true, get: function() { abort("'ALLOC_STACK' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") } });
-if (!Object.getOwnPropertyDescriptor(Module, "ALLOC_DYNAMIC")) Object.defineProperty(Module, "ALLOC_DYNAMIC", { configurable: true, get: function() { abort("'ALLOC_DYNAMIC' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") } });
 if (!Object.getOwnPropertyDescriptor(Module, "ALLOC_NONE")) Object.defineProperty(Module, "ALLOC_NONE", { configurable: true, get: function() { abort("'ALLOC_NONE' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") } });
 
 
@@ -8488,6 +8457,7 @@ function callMain(args) {
     }
   } finally {
     calledMain = true;
+
   }
 }
 
@@ -8594,12 +8564,13 @@ function exit(status, implicit) {
     }
   } else {
 
-    ABORT = true;
     EXITSTATUS = status;
 
     exitRuntime();
 
     if (Module['onExit']) Module['onExit'](status);
+
+    ABORT = true;
   }
 
   quit_(status, new ExitStatus(status));
