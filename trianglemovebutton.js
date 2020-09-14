@@ -614,8 +614,8 @@ var wasmMemory;
 // so this creates a (non-native-wasm) table for us.
 
 var wasmTable = new WebAssembly.Table({
-  'initial': 28,
-  'maximum': 28,
+  'initial': 29,
+  'maximum': 29,
   'element': 'anyfunc'
 });
 
@@ -1228,10 +1228,10 @@ function updateGlobalBufferAndViews(buf) {
 }
 
 var STATIC_BASE = 1024,
-    STACK_BASE = 5244944,
+    STACK_BASE = 5244960,
     STACKTOP = STACK_BASE,
-    STACK_MAX = 2064,
-    DYNAMIC_BASE = 5244944;
+    STACK_MAX = 2080,
+    DYNAMIC_BASE = 5244960;
 
 assert(STACK_BASE % 16 === 0, 'stack must start aligned');
 assert(DYNAMIC_BASE % 16 === 0, 'heap must start aligned');
@@ -1763,7 +1763,7 @@ var ASM_CONSTS = {
 
 
 
-// STATICTOP = STATIC_BASE + 1040;
+// STATICTOP = STATIC_BASE + 1056;
 /* global initializers */  __ATINIT__.push({ func: function() { ___wasm_call_ctors() } });
 
 
@@ -7742,6 +7742,35 @@ var ASM_CONSTS = {
       GLImmediate.modifiedClientAttributes = true;
     }
 
+  function _glLoadIdentity() {
+      GLImmediate.matricesModified = true;
+      GLImmediate.matrixVersion[GLImmediate.currentMatrix] = (GLImmediate.matrixVersion[GLImmediate.currentMatrix] + 1)|0;
+      GLImmediate.matrixLib.mat4.identity(GLImmediate.matrix[GLImmediate.currentMatrix]);
+    }
+
+  function _glPopMatrix() {
+      if (GLImmediate.matrixStack[GLImmediate.currentMatrix].length == 0) {
+        GL.recordError(0x504/*GL_STACK_UNDERFLOW*/);
+        return;
+      }
+      GLImmediate.matricesModified = true;
+      GLImmediate.matrixVersion[GLImmediate.currentMatrix] = (GLImmediate.matrixVersion[GLImmediate.currentMatrix] + 1)|0;
+      GLImmediate.matrix[GLImmediate.currentMatrix] = GLImmediate.matrixStack[GLImmediate.currentMatrix].pop();
+    }
+
+  function _glPushMatrix() {
+      GLImmediate.matricesModified = true;
+      GLImmediate.matrixVersion[GLImmediate.currentMatrix] = (GLImmediate.matrixVersion[GLImmediate.currentMatrix] + 1)|0;
+      GLImmediate.matrixStack[GLImmediate.currentMatrix].push(
+          Array.prototype.slice.call(GLImmediate.matrix[GLImmediate.currentMatrix]));
+    }
+
+  function _glRotatef(angle, x, y, z) {
+      GLImmediate.matricesModified = true;
+      GLImmediate.matrixVersion[GLImmediate.currentMatrix] = (GLImmediate.matrixVersion[GLImmediate.currentMatrix] + 1)|0;
+      GLImmediate.matrixLib.mat4.rotate(GLImmediate.matrix[GLImmediate.currentMatrix], angle*Math.PI/180, [x, y, z]);
+    }
+
   function _glVertex2f(x, y) {
       assert(GLImmediate.mode >= 0); // must be in begin/end
       GLImmediate.vertexData[GLImmediate.vertexCounter++] = x;
@@ -8127,6 +8156,10 @@ var ASM_CONSTS = {
       throw 'unwind';
     }
 
+  function _glutMouseFunc(func) {
+      GLUT.mouseFunc = func;
+    }
+
 
   function _glutSpecialFunc(func) {
       GLUT.specialFunc = func;
@@ -8176,7 +8209,7 @@ function intArrayToString(array) {
 }
 
 
-var asmLibraryArg = { "__cxa_allocate_exception": ___cxa_allocate_exception, "__cxa_atexit": ___cxa_atexit, "__cxa_throw": ___cxa_throw, "__indirect_function_table": wasmTable, "abort": _abort, "emscripten_memcpy_big": _emscripten_memcpy_big, "emscripten_resize_heap": _emscripten_resize_heap, "glBegin": _glBegin, "glColor3f": _glColor3f, "glEnable": _glEnable, "glEnd": _glEnd, "glVertex2f": _glVertex2f, "glutCreateWindow": _glutCreateWindow, "glutDisplayFunc": _glutDisplayFunc, "glutIdleFunc": _glutIdleFunc, "glutInit": _glutInit, "glutInitWindowSize": _glutInitWindowSize, "glutKeyboardFunc": _glutKeyboardFunc, "glutKeyboardUpFunc": _glutKeyboardUpFunc, "glutMainLoop": _glutMainLoop, "glutPostRedisplay": _glutPostRedisplay, "glutSpecialFunc": _glutSpecialFunc, "glutSpecialUpFunc": _glutSpecialUpFunc, "memory": wasmMemory };
+var asmLibraryArg = { "__cxa_allocate_exception": ___cxa_allocate_exception, "__cxa_atexit": ___cxa_atexit, "__cxa_throw": ___cxa_throw, "__indirect_function_table": wasmTable, "abort": _abort, "emscripten_memcpy_big": _emscripten_memcpy_big, "emscripten_resize_heap": _emscripten_resize_heap, "glBegin": _glBegin, "glColor3f": _glColor3f, "glEnable": _glEnable, "glEnd": _glEnd, "glLoadIdentity": _glLoadIdentity, "glPopMatrix": _glPopMatrix, "glPushMatrix": _glPushMatrix, "glRotatef": _glRotatef, "glVertex2f": _glVertex2f, "glutCreateWindow": _glutCreateWindow, "glutDisplayFunc": _glutDisplayFunc, "glutIdleFunc": _glutIdleFunc, "glutInit": _glutInit, "glutInitWindowSize": _glutInitWindowSize, "glutKeyboardFunc": _glutKeyboardFunc, "glutKeyboardUpFunc": _glutKeyboardUpFunc, "glutMainLoop": _glutMainLoop, "glutMouseFunc": _glutMouseFunc, "glutPostRedisplay": _glutPostRedisplay, "glutSpecialFunc": _glutSpecialFunc, "glutSpecialUpFunc": _glutSpecialUpFunc, "memory": wasmMemory };
 var asm = createWasm();
 /** @type {function(...*):?} */
 var ___wasm_call_ctors = Module["___wasm_call_ctors"] = createExportWrapper("__wasm_call_ctors");
