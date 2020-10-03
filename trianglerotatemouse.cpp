@@ -5,11 +5,13 @@ bool rotate = true;
 
 void display()
 {
+	glClear(GL_COLOR_BUFFER_BIT);
 	glBegin(GL_TRIANGLES);
 	glVertex2f(0, 0.9);
 	glVertex2f(-0.9, -0.9);
 	glVertex2f(0.9, -0.9);
 	glEnd();
+	glFlush();
 }
 
 void idle()
@@ -25,11 +27,11 @@ void moused(int button, int state, int x, int y)
 		rotate = !rotate;
 }
 
-int main()
+int main(int argc, char **argv)
 {
-	glutInit(NULL, NULL);
+	glutInit(&argc, argv);
 	glutInitWindowSize(400, 400); 
-	glutCreateWindow("");
+	glutCreateWindow(argv[0]);
 	glutDisplayFunc(display); 
 	glutIdleFunc(idle);
 	glutMouseFunc(moused);

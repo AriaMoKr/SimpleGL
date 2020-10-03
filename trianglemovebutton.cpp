@@ -10,6 +10,8 @@ int width = 400, height = 400;
 
 void display()
 {
+	glClear(GL_COLOR_BUFFER_BIT);
+
 	glColor3f(1, 1, 1);
 	glBegin(GL_TRIANGLES);
 	glVertex2f(0, 0.9);
@@ -34,6 +36,8 @@ void display()
 	glVertex2f(-0.6, -0.95);
 	glEnd();
 	glPopMatrix();
+
+	glFlush();
 }
 
 void idle()
@@ -97,11 +101,11 @@ void moused(int button, int state, int x, int y)
 	rotating = !rotating;
 }
 
-int main()
+int main(int argc, char **argv)
 {
-	glutInit(NULL, NULL);
+	glutInit(&argc, argv);
 	glutInitWindowSize(width, height); 
-	glutCreateWindow("");
+	glutCreateWindow(argv[0]);
 	glutDisplayFunc(display); 
 	glutIdleFunc(idle);
 	glutKeyboardFunc(keyboardd);
