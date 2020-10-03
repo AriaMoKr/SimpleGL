@@ -7,12 +7,14 @@ void display()
 	glVertex2f(-0.9, -0.9);
 	glVertex2f(0.9, -0.9);
 	glEnd();
+	glFlush();
 }
 
-int main()
+int main(int argc, char **argv)
 {
+	glutInit(&argc, argv);
 	glutInitWindowSize(400, 400); 
-	glutCreateWindow("");
+	glutCreateWindow(argv[0]);
 	glutDisplayFunc(display); 
 	glutMainLoop();
 }
